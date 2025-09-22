@@ -2,35 +2,99 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>AR Marker</title>
+    <title>Visualizador 3D / 2D / AR</title>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: #000;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+      }
+      #menu {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        background: #111;
+        padding: 10px;
+      }
+      button {
+        padding: 10px 20px;
+        border: none;
+        background: #444;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      button:hover {
+        background: #666;
+      }
+      #viewer {
+        flex: 1;
+        position: relative;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
   </head>
-  <body style="margin: 0; overflow: hidden;">
-    <!-- Cena com AR -->
-    <a-scene 
-      embedded 
-      arjs="trackingMethod: best; sourceType: webcam;" 
-      renderer="antialias: true; precision: highp;">
-      
-      <!-- Luz ambiente (clareia tudo igualmente) -->
-      <a-entity light="type: ambient; intensity: 0.7"></a-entity>
+  <body>
+    <div id="menu">
+      <button onclick="showMode('3d')">3D</button>
+      <button onclick="showMode('2d')">2D</button>
+      <button onclick="showMode('ar')">AR</button>
+    </div>
 
-      <!-- Luz direcional (como o sol, dá sombras e realismo) -->
-      <a-entity light="type: directional; intensity: 0.9" position="1 1 1"></a-entity>
+    <div id="viewer">
+      <!-- Modo 3D normal -->
+      <model-viewer id="viewer3d"
+        class="mode"
+        src="model.glb"
+        auto-rotate
+        camera-controls
+        style="width: 100%; height: 100%;">
+      </model-viewer>
 
-      <!-- Marcador Hiro -->
-      <a-marker preset="hiro">
-        <!-- Modelo 3D que aparece no marcador -->
-        <a-entity 
-          gltf-model="url(model.glb)" 
-          scale="0.25 0.25 0.25" 
-          position="0 0 0">
-        </a-entity>
-      </a-marker>
+      <!-- Modo 2D (imagem renderizada do modelo) -->
+      <img id="viewer2d"
+        class="mode hidden"
+        src="preview.png"
+        style="width: 100%; height: 100%; object-fit: contain; background: black;" />
 
-      <!-- Câmera -->
-      <a-entity camera></a-entity>
-    </a-scene>
+      <!-- Modo AR com marcador -->
+      <a-scene id="viewerar" 
+        class="mode hidden"
+        embedded 
+        arjs="trackingMethod: best; sourceType: webcam;" 
+        renderer="antialias: true; precision: highp;"
+        vr-mode-ui="enabled: false">
+
+        <a-entity light="type: ambient; intensity: 0.7"></a-entity>
+        <a-entity light="type: directional; intensity: 0.9" position="1 1 1"></a-entity>
+
+        <a-marker preset="hiro">
+          <a-entity 
+            gltf-model="url(model.glb)" 
+            scale="0.25 0.25 0.25"
+            position="0 0 0">
+          </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+      </a-scene>
+    </div>
+
+    <script>
+      function showMode(mode) {
+        document.querySelectorAll('.mode').forEach(el => el.classList.add('hidden'));
+        if (mode === '3d') document.getElementById('viewer3d').classList.remove('hidden');
+        if (mode === '2d') document.getElementById('viewer2d').classList.remove('hidden');
+        if (mode === 'ar') document.getElementById('viewerar').classList.remove('hidden');
+      }
+    </script>
   </body>
 </html>
