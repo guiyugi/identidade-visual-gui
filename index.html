@@ -31,7 +31,6 @@
         bottom: 0;
       }
 
-
       #viewer2d {
         display: flex;
         align-items: center;
@@ -42,7 +41,6 @@
         box-sizing: border-box;
         z-index: 2; 
       }
-
 
       #viewer2d img {
         max-width: 100%;
@@ -74,12 +72,10 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-
       body:not(.mode-ar) video#arjs-video,
       body:not(.mode-ar) video[autoplay][playsinline] {
         display: none !important;
       }
-
 
       body.mode-ar video#arjs-video,
       body.mode-ar video[autoplay][playsinline] {
@@ -93,7 +89,6 @@
         margin: 0 !important;
         padding: 0 !important;
       }
-
 
       body.mode-ar a-scene canvas {
         position: fixed !important;
@@ -146,8 +141,6 @@
     </style>
   </head>
   <body>
-  
-
     <div id="menu">
       <button onclick="showMode('2d')">2D</button>
       <button onclick="showMode('3d')">3D</button>
@@ -167,23 +160,50 @@
       style="width:100%; height:100%;">
     </model-viewer>
 
-
     <a-scene 
       id="viewerAR"
-      embedded 
-      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;" 
-      renderer="logarithmicDepthBuffer: true; antialias: true;"
-      vr-mode-ui="enabled: false">
+      embedded
+      arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+  renderer="logarithmicDepthBuffer: true; antialias: true; shadowMapEnabled: true; shadowMapType: pcfSoft; shadowMapSize: 4096 4096; physicallyCorrectLights: true; toneMapping: ACESFilmic; exposure: 2.4;"
+    vr-mode-ui="enabled: false"
+    shadow="type: pcfsoft; autoUpdate: true;"
+    light="defaultLightsEnabled: false">
 
-      <a-entity light="type: ambient; intensity: 0.6"></a-entity>
-      <a-entity light="type: directional; intensity: 0.8" position="1 1 1"></a-entity>
+  <a-entity light="type: ambient; intensity: 1.5; color: #ffffff"></a-entity>
+  <a-entity light="type: directional; intensity: 5.0; color: #ffffff" position="4 6 3" target="#marker-object" shadow="cast: true; shadowMapSize: 8192 8192; shadowCameraFar: 100; shadowCameraNear: 0.1; shadowCameraLeft: -20; shadowCameraRight: 20; shadowCameraTop: 20; shadowCameraBottom: -20; shadowBias: -0.00005;"></a-entity>
+  <a-entity light="type: directional; intensity: 2.0; color: #74b9ff" position="-3 4 2" shadow="cast: true; shadowMapSize: 4096 4096; shadowBias: -0.00005;"></a-entity>
+  <a-entity light="type: spot; intensity: 3.5; angle: 40; penumbra: 0.25; distance: 14; decay: 0.8" position="-2 3 -3" target="#marker-object" color="#fdcb6e" shadow="cast: true; shadowMapSize: 4096 4096; shadowBias: -0.00005;"></a-entity>
+  <a-entity light="type: point; intensity: 3.2; distance: 12; decay: 0.4" position="2 2 2" color="#e17055" shadow="cast: true; shadowMapSize: 2048 2048; shadowBias: -0.00005;"></a-entity>
+  <a-entity light="type: hemisphere; intensity: 1.4; color: #ffffff" groundColor="#636e72"></a-entity>
 
       <a-marker preset="hiro">
         <a-entity 
+          id="marker-object"
           gltf-model="url(model.glb)" 
           scale="0.2 0.2 0.2"
-          position="0 0 0">
+          position="0 0 0"
+          shadow="receive: true; cast: true"
+          material="shader: standard; roughness: 0.25; metalness: 0.2; envMapIntensity: 1.2;">
         </a-entity>
+        <a-plane 
+          position="0 -0.06 0" 
+          rotation="-90 0 0" 
+          width="2.0" 
+          height="2.0" 
+          color="#000000" 
+          opacity="0.12"
+          shadow="receive: true"
+          material="shader: standard; transparent: true; roughness: 0.9; metalness: 0.0;">
+        </a-plane>
+        
+        <a-plane 
+          position="0 2 -3" 
+          rotation="0 0 0" 
+          width="6" 
+          height="4" 
+          opacity="0"
+          material="shader: standard; transparent: true; color: #636e72; roughness: 0.7; metalness: 0.2;">
+        </a-plane>
       </a-marker>
 
       <a-entity camera></a-entity>
@@ -226,14 +246,12 @@
         }
       }
 
-
       window.addEventListener('load', () => {
         const startMode = sessionStorage.getItem('startMode');
         if (startMode === 'ar') {
           sessionStorage.removeItem('startMode');
           showMode('ar');
         } else {
-          // Inicializa no modo 2D por padrão
           showMode("2d");
         }
       });
